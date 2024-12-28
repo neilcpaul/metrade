@@ -1,6 +1,5 @@
 package org.ncp.metrade.misc;
 
-import org.ncp.core.Priority;
 import org.ncp.core.RunnableInstance;
 import org.ncp.core.Service;
 import org.ncp.core.exception.PublishException;
@@ -14,7 +13,6 @@ import org.ncp.model.HeartBeat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +28,7 @@ public class HeartbeatPublisher implements RunnableInstance {
 
     @Override
     public void init(Context context) throws Exception {
-        publisher = newPublisher(context);
+        publisher = newPublisher(context, "heartbeat");
         executorService = Executors.newSingleThreadScheduledExecutor(ThreadFactoryUtils.newThreadFactory("heartbeat"));
     }
 

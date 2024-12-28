@@ -1,7 +1,6 @@
 package org.ncp.metrade.trade;
 
 import com.google.protobuf.Timestamp;
-import org.ncp.core.Priority;
 import org.ncp.core.RunnableInstance;
 import org.ncp.core.Service;
 import org.ncp.core.messaging.Publisher;
@@ -10,7 +9,10 @@ import org.ncp.core.util.clock.Clock;
 import org.ncp.core.util.config.Context;
 import org.ncp.core.util.thread.ThreadFactoryUtils;
 import org.ncp.metrade.METrade;
-import org.ncp.model.*;
+import org.ncp.model.Envelope;
+import org.ncp.model.Order;
+import org.ncp.model.OrderRequest;
+import org.ncp.model.Side;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import static org.ncp.core.messaging.rabbitmq.RabbitMqPublisher.newPublisher;
 
 @Service(of = {METrade.class})
-@Priority(99)
 public class OrderRequestGenerator implements RunnableInstance {
     private static final Logger log = LoggerFactory.getLogger(OrderRequestGenerator.class);
 

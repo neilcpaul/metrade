@@ -1,7 +1,6 @@
 package org.ncp.metrade.misc;
 
-import org.ncp.core.Priority;
-import org.ncp.core.RunnableInstance;
+import org.ncp.core.Initialisable;
 import org.ncp.core.Service;
 import org.ncp.core.exception.ConsumptionException;
 import org.ncp.core.messaging.Queue;
@@ -20,9 +19,8 @@ import org.slf4j.LoggerFactory;
 import static org.ncp.core.messaging.rabbitmq.RabbitMqSubscriber.newQueue;
 import static org.ncp.core.messaging.utils.MessagingUtils.getMessage;
 
-@Service(of = {METrade.class}, priority = 1)
-@Priority(1)
-public class MessageReceiver implements RunnableInstance, QueueConsumer<Envelope> {
+@Service(of = {METrade.class})
+public class MessageReceiver implements Initialisable, QueueConsumer<Envelope> {
     private static final Logger log = LoggerFactory.getLogger(MessageReceiver.class);
 
     private Queue<Envelope> listener;
@@ -36,12 +34,7 @@ public class MessageReceiver implements RunnableInstance, QueueConsumer<Envelope
             return data;
         });
         orderRequestReactive = context.getGraph().createInputReactive();
-        listener = newQueue(context, "listener", this);
-    }
-
-    @Override
-    public void start() throws Exception {
-        listener.start();
+        newQueue(context, "listener", this).startAsync();
     }
 
     @Override
