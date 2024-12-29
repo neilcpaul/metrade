@@ -12,9 +12,12 @@ import org.ncp.core.util.datastructure.graph.Reactive;
 import org.ncp.metrade.METrade;
 import org.ncp.model.Envelope;
 import org.ncp.model.HeartBeat;
+import org.ncp.model.Key;
 import org.ncp.model.OrderRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Set;
 
 import static org.ncp.core.messaging.rabbitmq.RabbitMqSubscriber.newQueue;
 import static org.ncp.core.messaging.utils.MessagingUtils.getMessage;
@@ -30,11 +33,14 @@ public class MessageReceiver implements Initialisable, QueueConsumer<Envelope> {
     @Override
     public void init(Context context) throws Exception {
         heartBeatReactive = context.getGraph().createReactive( data -> {
-            log.info("MessageReceiver (Heartbeat): " + MessagingUtils.logPrint(data));
+            log.info("MessageReceiver (Heartbeat): {}", MessagingUtils.logPrint(data));
             return data;
         });
-        orderRequestReactive = context.getGraph().createInputReactive();
-        newQueue(context, "listener", this).startAsync();
+        orderRequestReactive = context.getGraph().createReactive( data -> {
+            log.info("MessageReceiver (OrderRequest): {}", MessagingUtils.logPrint(data));
+            return data;
+        });
+        newQueue(context, "listener", Set.of(Key.MessageType.OrderRequest, Key.MessageType.HeartBeat), this).startAsync();
     }
 
     @Override

@@ -5,6 +5,7 @@ import org.ncp.core.Service;
 import org.ncp.core.util.config.Context;
 import org.ncp.core.util.datastructure.graph.Reaction;
 import org.ncp.core.util.datastructure.graph.Reactive;
+import org.ncp.core.util.datastructure.graph.ReactiveProvider;
 import org.ncp.metrade.METrade;
 import org.ncp.metrade.misc.MessageReceiver;
 import org.ncp.model.Order;
@@ -15,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import static org.ncp.model.DataModelUtils.logPrint;
 
 @Service(of = {METrade.class})
-public class OrderRequestProcessor implements Initialisable, Reaction<OrderRequest> {
+public class OrderRequestProcessor implements Initialisable, Reaction<OrderRequest>, ReactiveProvider<Order> {
 
     private static final Logger log = LoggerFactory.getLogger(OrderRequestProcessor.class);
     private Reactive<Order> orderReactive;
@@ -28,12 +29,13 @@ public class OrderRequestProcessor implements Initialisable, Reaction<OrderReque
 
     @Override
     public OrderRequest evaluate(OrderRequest request) {
-        log.info("OrderRequestProcessor: Got order request: " + logPrint(request));
+        log.info("OrderRequestProcessor: Got order request: {}", logPrint(request));
         orderReactive.evaluate(request.getOrder());
         return request;
     }
 
-    public Reactive<Order> getOrderReactive() {
+    @Override
+    public Reactive<Order> getReactive() {
         return orderReactive;
     }
 }

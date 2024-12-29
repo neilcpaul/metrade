@@ -17,23 +17,16 @@ import static org.ncp.model.DataModelUtils.logPrint;
 public class OrderManager implements Initialisable, Reaction<Order> {
 
     private static final Logger log = LoggerFactory.getLogger(OrderManager.class);
-    private Reactive<Boolean> started;
 
     @Override
     public void init(Context context) throws Exception {
         log.info("Started OrderManager");
-        context.getGraph().bind(context.getInstance(OrderRequestProcessor.class).getOrderReactive(), this);
-        started = context.getGraph().createInputReactive();
-        context.getGraph().bind(context.getInstance(OrderManager2.class).getStartedReactive(), r -> r);
+        context.getGraph().bind(context.getInstance(OrderRequestProcessor.class).getReactive(), this);
     }
 
     @Override
     public Order evaluate(Order data) {
-        log.info("OrderManager: Got order: " + logPrint(data));
+        log.info("OrderManager: Got order: {}", logPrint(data));
         return data;
-    }
-
-    public Reactive<Boolean> getStartedReactive() {
-        return started;
     }
 }

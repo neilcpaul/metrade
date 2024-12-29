@@ -7,6 +7,7 @@ import org.ncp.core.messaging.Publisher;
 import org.ncp.core.messaging.utils.MessagingUtils;
 import org.ncp.core.util.clock.Clock;
 import org.ncp.core.util.config.Context;
+import org.ncp.core.util.crypto.IdentifierUtils;
 import org.ncp.core.util.thread.ThreadFactoryUtils;
 import org.ncp.metrade.METrade;
 import org.ncp.model.Envelope;
@@ -90,7 +91,7 @@ public class OrderRequestGenerator implements RunnableInstance {
                 .setSide(random.nextBoolean() ? Side.BUY : Side.SELL)
                 .setTraderId(user)
                 .setClientId(system)
-                .setClientOrderId(UUID.randomUUID().toString())
+                .setClientOrderId(String.valueOf(IdentifierUtils.getInstance().nextId()))
                 .setAssetId(1)
                 .setOrderType(Order.OrderType.MARKET)
                 .setCreationTime(now)
