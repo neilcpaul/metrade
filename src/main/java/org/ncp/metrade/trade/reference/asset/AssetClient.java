@@ -1,19 +1,18 @@
 package org.ncp.metrade.trade.reference.asset;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.Message;
 import org.ncp.core.exception.ConsumptionException;
 import org.ncp.core.exception.MessagingException;
 import org.ncp.core.messaging.rabbitmq.MessageProperties;
-import org.ncp.core.messaging.utils.MessagingUtils;
 import org.ncp.core.trade.api.exception.*;
 import org.ncp.core.trade.api.impl.AbstractRpcApi;
 import org.ncp.core.util.config.Context;
+import org.ncp.core.util.datastructure.Cache;
 import org.ncp.core.util.datastructure.graph.Reactive;
 import org.ncp.core.util.datastructure.graph.ReactiveProvider;
-import org.ncp.model.*;
-import org.ncp.model.Currency;
-import org.ncp.model.Error;
+import org.ncp.model.Envelope;
+import org.ncp.model.Key;
+import org.ncp.model.common.Currency;
 import org.ncp.model.trade.asset.Asset;
 import org.ncp.model.trade.asset.AssetCreationRequest;
 import org.ncp.model.trade.asset.AssetList;
@@ -29,10 +28,10 @@ import static org.ncp.model.DataModelUtils.logPrint;
 public class AssetClient extends AbstractRpcApi<Asset> implements ReactiveProvider<Asset> {
 
     private final static Logger log = LoggerFactory.getLogger(AssetClient.class);
-    private Reactive<Asset> reactive;
+    private final Reactive<Asset> reactive;
 
-    public AssetClient(Context context, AssetCache assetCache) throws MessagingException {
-        super(context, "assetClient", assetCache);
+    public AssetClient(Context context, Cache<Asset> cache) throws MessagingException {
+        super(context, "assetClient", cache);
         reactive = context.getGraph().createInputReactive();
     }
 
@@ -57,6 +56,7 @@ public class AssetClient extends AbstractRpcApi<Asset> implements ReactiveProvid
             Asset asset = getMessage(message);
             getCache().putIfAbsent(prefetchKey(asset), asset);
             reactive.evaluate(asset);
+            log.info("AssetClient: cached asset update: {}", logPrint(asset));
         } catch (InvalidProtocolBufferException e) {
             throw new ConsumptionException(e);
         }
@@ -67,7 +67,7 @@ public class AssetClient extends AbstractRpcApi<Asset> implements ReactiveProvid
         return Set.of(Key.MessageType.Asset);
     }
 
-    public Asset createAsset(String symbol, String assetName, String assetDescription, org.ncp.model.Currency currency) throws ServiceException {
+    public Asset createAsset(String symbol, String assetName, String assetDescription, org.ncp.model.common.Currency currency) throws ServiceException {
         if (getCache().has(symbol)) {
             log.warn("AssetClient: asset {} already exists", symbol);
             return getCache().get(symbol);

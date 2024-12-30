@@ -12,15 +12,13 @@ import org.ncp.core.util.datastructure.graph.Reactive;
 import org.ncp.metrade.METrade;
 import org.ncp.model.Envelope;
 import org.ncp.model.HeartBeat;
-import org.ncp.model.Key;
-import org.ncp.model.OrderRequest;
+import org.ncp.model.trade.order.OrderRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
-
 import static org.ncp.core.messaging.rabbitmq.RabbitMqSubscriber.newQueue;
 import static org.ncp.core.messaging.utils.MessagingUtils.getMessage;
+import static org.ncp.model.DataModelUtils.logPrint;
 
 @Service(of = {METrade.class})
 public class MessageReceiver implements Initialisable, QueueConsumer<Envelope> {
@@ -40,7 +38,7 @@ public class MessageReceiver implements Initialisable, QueueConsumer<Envelope> {
             log.info("MessageReceiver (OrderRequest): {}", MessagingUtils.logPrint(data));
             return data;
         });
-        newQueue(context, "listener", Set.of(Key.MessageType.OrderRequest, Key.MessageType.HeartBeat), this).startAsync();
+        newQueue(context, "all-messages", this).startAsync();
     }
 
     @Override
@@ -49,13 +47,18 @@ public class MessageReceiver implements Initialisable, QueueConsumer<Envelope> {
             switch (message.getKey().getMessageType()) {
                 case OrderRequest -> orderRequestReactive.evaluate(getMessage(message));
                 case HeartBeat -> heartBeatReactive.evaluate(getMessage(message));
+                default -> printMessage(message);
             }
         } catch (Exception e) {
             throw new ConsumptionException(e);
         }
     }
 
-    public Reactive<OrderRequest> getOrderRequestReactive() {
+    private void printMessage(Envelope message) {
+        log.info("MessageReceiver: saw message: {}", logPrint(message));
+    }
+
+    public Reactive<OrderRequest> getOrderReactive() {
         return orderRequestReactive;
     }
 }

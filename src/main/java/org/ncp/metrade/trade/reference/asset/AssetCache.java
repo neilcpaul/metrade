@@ -32,16 +32,24 @@ public class AssetCache extends ConcurrentHashMap<String, Asset> implements Cach
         return super.get(symbol);
     }
 
-    public Asset getAsset(int id) {
-        return super.get(symbolMap.get(id));
+    public Asset get(int id) {
+        return has(id) ? super.get(symbolMap.get(id)) : null;
     }
 
-    public boolean hasAsset(int id) {
-        return getAsset(id) != null;
+    public boolean has(int id) {
+        return symbolMap.containsKey(id);
     }
 
     public boolean has(String symbol) {
         return get(symbol) != null;
+    }
+
+    public String symbolForId(int id) {
+        return symbolMap.get(id);
+    }
+
+    public int idForSymbol(String symbol) {
+        return idMap.get(symbol);
     }
 
     @Override

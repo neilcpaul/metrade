@@ -1,69 +1,76 @@
 package org.ncp.metrade.trade;
 
-import com.google.protobuf.Timestamp;
 import org.ncp.core.RunnableInstance;
 import org.ncp.core.Service;
-import org.ncp.core.messaging.Publisher;
-import org.ncp.core.messaging.utils.MessagingUtils;
-import org.ncp.core.util.clock.Clock;
+import org.ncp.core.trade.api.exception.ServiceException;
 import org.ncp.core.util.config.Context;
-import org.ncp.core.util.crypto.IdentifierUtils;
+import org.ncp.core.util.datastructure.SimpleCache;
 import org.ncp.core.util.thread.ThreadFactoryUtils;
 import org.ncp.metrade.METrade;
-import org.ncp.model.Envelope;
-import org.ncp.model.Order;
-import org.ncp.model.OrderRequest;
-import org.ncp.model.Side;
+import org.ncp.metrade.trade.order.OrderClient;
+import org.ncp.metrade.trade.reference.asset.AssetCache;
+import org.ncp.metrade.trade.reference.asset.AssetClient;
+import org.ncp.model.common.Currency;
+import org.ncp.model.trade.asset.Asset;
+import org.ncp.model.trade.order.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.ncp.core.messaging.rabbitmq.RabbitMqPublisher.newPublisher;
+import static org.ncp.model.DataModelUtils.logPrint;
 
 @Service(of = {METrade.class})
 public class OrderRequestGenerator implements RunnableInstance {
     private static final Logger log = LoggerFactory.getLogger(OrderRequestGenerator.class);
 
-    private Publisher<Envelope> publisher;
     private ScheduledExecutorService executorService;
     private int baseSize = 10;
     private double basePrice = 9.5;
     private double lastPrice = 10;
     private final Random random = new Random();
     private String system;
-    private String user;
+    private AssetClient assetClient;
+    private OrderClient orderClient;
+    private AtomicInteger counter = new AtomicInteger(0);
 
     @Override
     public void init(Context context) throws Exception {
         system = context.getInstance();
-        user = context.getUser();
-        publisher = newPublisher(context);
         executorService = Executors.newSingleThreadScheduledExecutor(ThreadFactoryUtils.newThreadFactory("orderRequestGenerator"));
+        this.orderClient = new OrderClient(context, new SimpleCache<>());
+        this.assetClient = new AssetClient(context, context.getInstance(AssetCache.class));
     }
 
     @Override
     public void start() {
-        executorService.scheduleAtFixedRate(() -> {
-            try {
-                publisher.publish(MessagingUtils.packMessage(generateOrderRequest()));
-            } catch (Exception e) {
-                log.info("Problem publishing order request", e);
-                throw new RuntimeException(e);
-            }
-        }, 1, 5, TimeUnit.SECONDS);
-    }
-
-    private OrderRequest generateOrderRequest() {
-        return OrderRequest.newBuilder().
-                setOrder(generateOrder(
-                        Order.Status.NEW,
-                        getNextPrice(),
-                        getNextSize())).build();
+        try {
+            Asset asset = assetClient.createAsset("test", "Test Asset", "Test Asset", Currency.GBP);
+            log.info("OrderRequestGenerator: created asset: " + logPrint(asset));
+            executorService.scheduleAtFixedRate(() -> {
+                try {
+                    Order order = orderClient.createOrder(
+                            asset.getSymbol(),
+                            random.nextBoolean() ? Order.OrderType.LIMIT : Order.OrderType.MARKET,
+                            random.nextBoolean() ? Order.Side.BUY : Order.Side.SELL,
+                            getNextPrice(),
+                            getNextSize(),
+                            "TESTACC",
+                            "TESTORDERID" + counter.getAndIncrement(),
+                            system);
+                    log.info("OrderRequestGenerator: created order: {}", logPrint(order));
+                } catch (Exception e) {
+                    log.info("Problem publishing order request", e);
+                    throw new RuntimeException(e);
+                }
+            }, 1, 50, TimeUnit.MICROSECONDS);
+        } catch (ServiceException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Double getNextPrice() {
@@ -80,23 +87,5 @@ public class OrderRequestGenerator implements RunnableInstance {
     private int getNextSize() {
         double delta = random.nextGaussian()*100;
         return Math.abs(baseSize + (int)delta);
-    }
-
-    private Order generateOrder(Order.Status status, double price, int size) {
-        Timestamp now = Clock.getTimestamp();
-        return Order.newBuilder()
-                .setStatus(status)
-                .setPrice(price)
-                .setQuantity(size)
-                .setSide(random.nextBoolean() ? Side.BUY : Side.SELL)
-                .setTraderId(user)
-                .setClientId(system)
-                .setClientOrderId(String.valueOf(IdentifierUtils.getInstance().nextId()))
-                .setAssetId(1)
-                .setOrderType(Order.OrderType.MARKET)
-                .setCreationTime(now)
-                .setLastUpdateTime(now)
-                .setVersion(0)
-                .build();
     }
 }

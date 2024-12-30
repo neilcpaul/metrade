@@ -3,11 +3,13 @@ package org.ncp.metrade.trade.reference.asset;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import org.ncp.core.Initialisable;
+import org.ncp.core.RunnableInstance;
 import org.ncp.core.Service;
 import org.ncp.core.exception.PublishException;
 import org.ncp.core.messaging.Publisher;
 import org.ncp.core.messaging.RpcProcessor;
 import org.ncp.core.messaging.rabbitmq.MessageProperties;
+import org.ncp.core.messaging.rabbitmq.RabbitMqRpcService;
 import org.ncp.core.util.clock.Clock;
 import org.ncp.core.util.config.Context;
 import org.ncp.core.util.datastructure.graph.Reactive;
@@ -25,7 +27,7 @@ import static org.ncp.core.messaging.rabbitmq.RabbitMqPublisher.newPublisher;
 import static org.ncp.core.messaging.utils.MessagingUtils.getMessage;
 import static org.ncp.core.messaging.utils.MessagingUtils.packMessage;
 
-@Service()
+@Service(priority = 10)
 public class AssetService implements RpcProcessor<Envelope>, Initialisable, ReactiveProvider<Asset> {
 
     private final static Logger log = LoggerFactory.getLogger(AssetService.class);
@@ -41,6 +43,16 @@ public class AssetService implements RpcProcessor<Envelope>, Initialisable, Reac
         this.broadcast = newPublisher(context);
         this.assetCache = context.getInstance(AssetCache.class);
         this.assetReactive = context.getGraph().createInputReactive();
+        listen();
+    }
+
+    public void listen() throws Exception {
+        RabbitMqRpcService rpcService = new RabbitMqRpcService(
+                context,
+                "assetService",
+                this);
+
+        rpcService.startAsync();
     }
 
     @Override
