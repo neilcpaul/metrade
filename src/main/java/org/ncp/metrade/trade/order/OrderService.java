@@ -2,13 +2,13 @@ package org.ncp.metrade.trade.order;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
-import org.ncp.core.Initialisable;
-import org.ncp.core.RunnableInstance;
-import org.ncp.core.Service;
 import org.ncp.core.exception.MethodNotImplementedException;
+import org.ncp.core.messaging.Listener;
 import org.ncp.core.messaging.RpcProcessor;
 import org.ncp.core.messaging.rabbitmq.MessageProperties;
 import org.ncp.core.messaging.rabbitmq.RabbitMqRpcService;
+import org.ncp.core.service.Initialisable;
+import org.ncp.core.service.Service;
 import org.ncp.core.util.clock.Clock;
 import org.ncp.core.util.config.Context;
 import org.ncp.core.util.crypto.IdentifierUtils;
@@ -29,7 +29,7 @@ import static org.ncp.core.messaging.utils.MessagingUtils.getMessage;
 import static org.ncp.core.messaging.utils.MessagingUtils.packMessage;
 
 @Service(priority = 10)
-public class OrderService implements RpcProcessor<Envelope>, Initialisable, ReactiveProvider<Order> {
+public class OrderService implements Initialisable, RpcProcessor<Envelope>, Listener, ReactiveProvider<Order> {
 
     private final static Logger log = LoggerFactory.getLogger(OrderService.class);
     private Reactive<Order> reactive;

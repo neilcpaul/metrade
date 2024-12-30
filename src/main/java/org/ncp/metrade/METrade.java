@@ -1,13 +1,9 @@
 package org.ncp.metrade;
 
-import org.ncp.core.Application;
-import org.ncp.core.RunnableInstance;
-import org.ncp.core.Startable;
-import org.ncp.core.util.config.Context;
+import org.ncp.core.service.Application;
+import org.ncp.core.service.RunnableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Properties;
 
 import static org.ncp.core.util.thread.WaitUtils.exponentialBackoffWait;
 

@@ -1,12 +1,12 @@
 package org.ncp.metrade.misc;
 
-import org.ncp.core.Initialisable;
-import org.ncp.core.Service;
 import org.ncp.core.exception.ConsumptionException;
 import org.ncp.core.messaging.Queue;
 import org.ncp.core.messaging.QueueConsumer;
 import org.ncp.core.messaging.rabbitmq.MessageProperties;
 import org.ncp.core.messaging.utils.MessagingUtils;
+import org.ncp.core.service.Initialisable;
+import org.ncp.core.service.Service;
 import org.ncp.core.util.config.Context;
 import org.ncp.core.util.datastructure.graph.Reactive;
 import org.ncp.metrade.METrade;

@@ -1,9 +1,8 @@
 package org.ncp.metrade.trade.order.manager;
 
-import org.ncp.core.Initialisable;
-import org.ncp.core.Service;
 import org.ncp.core.exception.ConsumptionException;
-import org.ncp.core.trade.api.exception.OrderEntryException;
+import org.ncp.core.service.Initialisable;
+import org.ncp.core.service.Service;
 import org.ncp.core.trade.book.AssetMatchingEngine;
 import org.ncp.core.trade.book.AssetMatchingEngineImpl;
 import org.ncp.core.trade.book.event.OrderEvent;

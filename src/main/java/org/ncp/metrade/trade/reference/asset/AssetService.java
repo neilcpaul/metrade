@@ -2,14 +2,13 @@ package org.ncp.metrade.trade.reference.asset;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
-import org.ncp.core.Initialisable;
-import org.ncp.core.RunnableInstance;
-import org.ncp.core.Service;
 import org.ncp.core.exception.PublishException;
 import org.ncp.core.messaging.Publisher;
 import org.ncp.core.messaging.RpcProcessor;
 import org.ncp.core.messaging.rabbitmq.MessageProperties;
 import org.ncp.core.messaging.rabbitmq.RabbitMqRpcService;
+import org.ncp.core.service.Initialisable;
+import org.ncp.core.service.Service;
 import org.ncp.core.util.clock.Clock;
 import org.ncp.core.util.config.Context;
 import org.ncp.core.util.datastructure.graph.Reactive;
@@ -20,7 +19,10 @@ import org.ncp.model.trade.asset.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ncp.core.messaging.rabbitmq.RabbitMqPublisher.newPublisher;

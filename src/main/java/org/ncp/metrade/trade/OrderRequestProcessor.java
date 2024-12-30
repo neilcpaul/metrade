@@ -1,12 +1,10 @@
 package org.ncp.metrade.trade;
 
-import org.ncp.core.Initialisable;
-import org.ncp.core.Service;
+import org.ncp.core.service.Initialisable;
 import org.ncp.core.util.config.Context;
 import org.ncp.core.util.datastructure.graph.Reaction;
 import org.ncp.core.util.datastructure.graph.Reactive;
 import org.ncp.core.util.datastructure.graph.ReactiveProvider;
-import org.ncp.metrade.METrade;
 import org.ncp.metrade.misc.MessageReceiver;
 import org.ncp.metrade.trade.reference.asset.AssetCache;
 import org.ncp.model.trade.order.Order;

@@ -1,7 +1,7 @@
 package org.ncp.metrade.trade;
 
-import org.ncp.core.RunnableInstance;
-import org.ncp.core.Service;
+import org.ncp.core.service.RunnableInstance;
+import org.ncp.core.service.Service;
 import org.ncp.core.trade.api.exception.ServiceException;
 import org.ncp.core.util.config.Context;
 import org.ncp.core.util.datastructure.SimpleCache;
@@ -62,7 +62,7 @@ public class OrderRequestGenerator implements RunnableInstance {
                             "TESTACC",
                             "TESTORDERID" + counter.getAndIncrement(),
                             system);
-                    log.info("OrderRequestGenerator: created order: {}", logPrint(order));
+                    log.debug("OrderRequestGenerator: created order: {}", logPrint(order));
                 } catch (Exception e) {
                     log.info("Problem publishing order request", e);
                     throw new RuntimeException(e);

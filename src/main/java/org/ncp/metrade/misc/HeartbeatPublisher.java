@@ -1,10 +1,10 @@
 package org.ncp.metrade.misc;
 
-import org.ncp.core.RunnableInstance;
-import org.ncp.core.Service;
 import org.ncp.core.exception.PublishException;
 import org.ncp.core.messaging.Publisher;
 import org.ncp.core.messaging.utils.MessagingUtils;
+import org.ncp.core.service.RunnableInstance;
+import org.ncp.core.service.Service;
 import org.ncp.core.util.config.Context;
 import org.ncp.core.util.thread.ThreadFactoryUtils;
 import org.ncp.metrade.METrade;

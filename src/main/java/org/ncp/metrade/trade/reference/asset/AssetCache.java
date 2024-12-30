@@ -1,7 +1,7 @@
 package org.ncp.metrade.trade.reference.asset;
 
-import org.ncp.core.Initialisable;
-import org.ncp.core.Service;
+import org.ncp.core.service.Initialisable;
+import org.ncp.core.service.Service;
 import org.ncp.core.util.config.Context;
 import org.ncp.core.util.datastructure.Cache;
 import org.ncp.core.util.datastructure.graph.Reactive;
